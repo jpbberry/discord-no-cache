@@ -72,6 +72,9 @@ class Client {
         }
         return await this.request(`/channels/${channelID}/messages`, "POST", obj);
     }
+    async deleteMessage(channelID, messageID) {
+        return await this.request(`/channels/${channelID}/messages/${messageID}`, "DELETE");
+    }
 }
 
 module.exports = Client;
