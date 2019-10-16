@@ -1,6 +1,6 @@
 {
   "name": "discord-no-cache",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Package for internal use of simplistic discord bots",
   "main": "index.js",
   "scripts": {

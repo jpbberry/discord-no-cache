@@ -46,7 +46,7 @@ class Client {
     
     request(endpoint, method = "GET", body = null, headers = {}) {
         return new Promise((res, rej) => {
-            if(!["GET", "POST", "PATCH", "DELETE"].includes(method)) throw new TypeError("Method must be GET, POST, PATCH or DELETE");
+            if(!["GET", "POST", "PATCH", "DELETE", "PUT"].includes(method)) throw new TypeError("Method must be GET, POST, PATCH or DELETE");
             req(this.options.api + endpoint, {
                 method: method,
                 body: body ? JSON.stringify(body) : null,
