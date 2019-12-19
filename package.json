@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/jpbberry/discord-no-cache/issues"
   },
-  "homepage": "https://github.com/jpbberry/discord-no-cache#readme"
+  "homepage": "https://github.com/jpbberry/discord-no-cache#readme",
+  "dependencies": {
+    "collections": "latest"
+  }
 }
