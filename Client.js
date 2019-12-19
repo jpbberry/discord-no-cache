@@ -1,5 +1,6 @@
 let browser = typeof window !== 'undefined'
 const WS = browser ? WebSocket : require("ws");
+const Embed = require('./Embed.js')
 const req = browser ? fetch : require("node-fetch");
 
 function wait(a) { return new Promise(r => { setTimeout(() => r(), a) }) }
@@ -31,6 +32,12 @@ class Client {
     }
 
     if (!this.options.dontStart) this.start();
+    
+    this.Embed = Embed
+  }
+  
+  get embed() {
+    return new this.Embed()
   }
 
   async start() {

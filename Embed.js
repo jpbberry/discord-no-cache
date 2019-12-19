@@ -6,7 +6,12 @@ class Embed {
             url: null,
             timestamp: null,
             color: 0,
-            fields: []
+            fields: [],
+
+            thumbnail: null,
+            footer: null,
+            image: null,
+            author: null
         }
     }
     
@@ -36,6 +41,41 @@ class Embed {
             value: value,
             inline: inline
         })
+        return this
+    }
+    
+    thumbnail(url, width, height) {
+        this.obj.thumbnail = {
+            url: url,
+            width: width || null,
+            height: height || null
+        }
+        return this
+    }
+    
+    footer(text, icon) {
+        this.obj.footer = {
+            text: text || null,
+            icon_url: icon || null
+        }
+        return this
+    }
+    
+    image(url, height, width) {
+        this.obj.image = {
+            url: url,
+            width: width || null,
+            height: height || null
+        }
+        return this
+    }
+    
+    author(name, icon, url) {
+        this.obj.author = {
+            name: name,
+            icon_url: icon,
+            url: url
+        }
         return this
     }
     
