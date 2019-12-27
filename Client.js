@@ -1,41 +1,32 @@
-let browser = typeof window !== 'undefined'
-const WS = browser ? WebSocket : require("ws");
+const WS = require("ws");
 const Embed = require('./Embed.js')
-const req = browser ? fetch : require("node-fetch");
+const req = require("node-fetch");
+const EventHandler = require('events')
 
 function wait(a) { return new Promise(r => { setTimeout(() => r(), a) }) }
 
 const Shard = require("./Shard.js");
 
-class Client {
+class Client extends EventHandler {
   constructor(token, options = {}, debug = () => {}) {
+    super()
     this.debug = debug;
     this.options = {
       shards: options.shards || 1,
       ignoreEvents: options.ignoreEvents || [],
       websocket: options.websocket || "wss://gateway.discord.gg/?v=6&encoding=json",
-      api: "https://discordapp.com/api/v6",
+      api: "https://discordapp.com/api/v7",
       dontStart: options.dontStart || false,
       spawnTimeout: options.spawnTimeout || 6000
     };
     this.token = token;
     this.shards = [];
 
-    this.events = {};
-    this.on = (event, fn) => {
-      if (!this.events[event]) this.events[event] = [];
-      this.events[event].push(fn)
-    };
-    this.emit = (event, ...args) => {
-      if (!this.events[event]) return;
-      this.events[event].forEach(_ => { _(...args) })
-    }
-
     if (!this.options.dontStart) this.start();
-    
+
     this.Embed = Embed
   }
-  
+
   get embed() {
     return new this.Embed()
   }
@@ -60,7 +51,7 @@ class Client {
 
   request(endpoint, method = "GET", body = null, headers = {}) {
     return new Promise((res, rej) => {
-      if (!["GET", "POST", "PATCH", "DELETE", "PUT"].includes(method)) throw new TypeError("Method must be GET, POST, PATCH or DELETE");
+      if (!["GET", "POST", "PATCH", "DELETE", "PUT"].includes(method)) throw new TypeError("Method must be GET, POST, PATCH, DELETE or PUT");
       req(this.options.api + endpoint, {
           method: method,
           body: body ? JSON.stringify(body) : null,
@@ -70,13 +61,16 @@ class Client {
             ...headers
           }
         })
-        .then(x => x.json())
+        .then(x => {
+          if (x.status !== 204) return x.json()
+        })
         .then(response => { res(response) })
         .catch(err => rej(err));
     })
   }
   async send(channelID, contentOrOBJ = {}, obj = {}) {
     if (typeof contentOrOBJ !== 'string') {
+      if (contentOrOBJ instanceof Embed) contentOrOBJ = { embed: contentOrOBJ.render() }
       obj = {
         ...obj,
         ...contentOrOBJ
@@ -86,6 +80,19 @@ class Client {
       obj["content"] = contentOrOBJ;
     }
     return await this.request(`/channels/${channelID}/messages`, "POST", obj);
+  }
+  async edit(channelID, messageID, contentOrOBJ, obj = {}) {
+    if (typeof contentOrOBJ !== 'string') {
+      if (contentOrOBJ instanceof Embed) contentOrOBJ = { embed: contentOrOBJ.render() }
+      obj = {
+        ...obj,
+        ...contentOrOBJ
+      }
+    }
+    else {
+      obj["content"] = contentOrOBJ;
+    }
+    return await this.request(`/channels/${channelID}/messages/${messageID}`, "PATCH", obj);
   }
   async deleteMessage(channelID, messageID) {
     return await this.request(`/channels/${channelID}/messages/${messageID}`, "DELETE");
@@ -105,6 +112,27 @@ class Client {
         })
       )
     }
+  }
+
+  messageMenu(channelID, filter = () => true, amount = 1, onm = () => {}) {
+    return new Promise((resolve) => {
+      let res = []
+      let through = 0
+      const collector = (message) => {
+        if (message.channel_id === channelID && filter(message)) {
+          through++
+          onm(message)
+          if (res > 1) res.push(message)
+          else res = message
+          
+          if (through >= amount) {
+            this.off('MESSAGE_CREATE', collector)
+            resolve(res)
+          }
+        }
+      }
+      this.on('MESSAGE_CREATE', collector)
+    })
   }
 }
 

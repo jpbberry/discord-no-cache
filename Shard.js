@@ -96,6 +96,7 @@ class Shard {
   close(msg) {
     console.debug(`Shard ${this.id} closed, Reason: ${msg.reason} Code: ${msg.code}`);
     clearInterval(this.hbInterval);
+    process.exit()
   }
 
   kill() {
