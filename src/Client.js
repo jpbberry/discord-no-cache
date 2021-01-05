@@ -1,5 +1,5 @@
-const WS = require("ws");
 const Embed = require('./Embed.js')
+
 const req = require("node-fetch");
 const EventHandler = require('events')
 
@@ -18,6 +18,9 @@ class Client extends EventHandler {
       api: "https://discordapp.com/api/v7",
       dontStart: options.dontStart || false,
       spawnTimeout: options.spawnTimeout || 6000
+    };
+    this.cache = {
+      guilds: {}
     };
     this.token = token;
     this.shards = [];
@@ -76,6 +79,7 @@ class Client extends EventHandler {
       go()
     })
   }
+
   async send(channelID, contentOrOBJ = {}, obj = {}) {
     if (typeof contentOrOBJ !== 'string') {
       if (contentOrOBJ instanceof Embed) contentOrOBJ = { embed: contentOrOBJ.render() }
@@ -89,6 +93,7 @@ class Client extends EventHandler {
     }
     return await this.request(`/channels/${channelID}/messages`, "POST", obj);
   }
+
   async edit(channelID, messageID, contentOrOBJ, obj = {}) {
     if (typeof contentOrOBJ !== 'string') {
       if (contentOrOBJ instanceof Embed) contentOrOBJ = { embed: contentOrOBJ.render() }
@@ -102,9 +107,11 @@ class Client extends EventHandler {
     }
     return await this.request(`/channels/${channelID}/messages/${messageID}`, "PATCH", obj);
   }
+
   async react(channelID, messageID, reaction) {
     return await this.request(`/channels/${channelID}/messages/${messageID}/reactions/${reaction.match(/^[0-9]*$/) ? `e:${reaction}` : reaction}/@me`, 'PUT')
   }
+
   async deleteMessage(channelID, messageID) {
     return await this.request(`/channels/${channelID}/messages/${messageID}`, "DELETE");
   }

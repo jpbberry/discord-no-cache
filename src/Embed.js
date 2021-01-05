@@ -31,7 +31,6 @@ const Colors = {
   NOT_QUITE_BLACK: 0x23272A,
 };
 
-
 class Embed {
     constructor () {
         this.obj = {
