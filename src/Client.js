@@ -1,7 +1,6 @@
 const Embed = require('./Embed.js');
 
 const RestManager = require('discord-rest');
-const req = require("node-fetch");
 const EventHandler = require('events');
 
 function wait(a) { return new Promise(r => { setTimeout(() => r(), a); }); }
