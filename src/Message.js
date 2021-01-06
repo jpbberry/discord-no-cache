@@ -2,9 +2,9 @@ const Channel = require("./Channel");
 const Embed = require("./Embed");
 
 module.exports = class Message {
-  #shard;
+  shard;
   constructor(obj, shard) {
-    this.#shard = shard;
+    this.shard = shard;
 
     // IDs
     this.id = obj.id;
@@ -41,7 +41,7 @@ module.exports = class Message {
       if (message instanceof Embed) message = { embed: message.render() };
       obj = { ...obj, ...message };
     } else obj["content"] = message;
-    return new Message(await this.#shard.client.api().channels[this.channel.id].messages[this.id].patch({ body: { content: obj } }), this.#shard);
+    return new Message(await this.shard.client.api().channels[this.channel.id].messages[this.id].patch({ body: { content: obj } }), this.shard);
   }
 
   async reply(message) {
@@ -53,7 +53,7 @@ module.exports = class Message {
         obj['embed'] = message.render();
       } else obj = message;
     };
-    return new Message(await this.#shard.client.api().channels[this.channel.id].messages.post({
+    return new Message(await this.shard.client.api().channels[this.channel.id].messages.post({
       body: {
         ...obj,
         message_reference: {
@@ -62,10 +62,10 @@ module.exports = class Message {
           channel_id: this.channel.id
         }
       }
-    }), this.#shard);
+    }), this.shard);
   }
 
   delete() {
-    return this.#shard.client.api().channels[this.channel.id].messages[this.id].delete();
+    return this.shard.client.api().channels[this.channel.id].messages[this.id].delete();
   }
 };

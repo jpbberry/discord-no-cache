@@ -17,6 +17,8 @@ class Shard {
     this.client = client;
     this.ws = null;
 
+    this.ping = null;
+
     this.hbInterval = null;
     this.s = null;
 
@@ -111,13 +113,17 @@ class Shard {
       })
     );
 
+    this.heartbeat();
     this.hbInterval = setInterval(this.heartbeat.bind(this), msg.d.heartbeat_interval);
     this.client.debug("Heartbeat interval: " + msg.d.heartbeat_interval);
   }
 
   ack(msg) {
+    console.log(msg);
     let cur = new Date().getTime() - this.waitingHeartbeat;
     this.client.debug(`Heartbeat on shard ${this.id} acknowledged after ${cur}ms`);
+    console.log(new Date().getTime() - this.waitingHeartbeat)
+    this.ping = cur;
     this.waitingHeartbeat = false;
   }
 
