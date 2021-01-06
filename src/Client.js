@@ -16,7 +16,7 @@ class Client extends EventHandler {
       shards: options.shards || 1,
       ignoreEvents: options.ignoreEvents || [],
       websocket: options.websocket || "wss://gateway.discord.gg/?v=6&encoding=json",
-      api: "https://discordapp.com/api/v7",
+      api: "https://discordapp.com/api/v8",
       dontStart: options.dontStart || false,
       spawnTimeout: options.spawnTimeout || 6000
     };
