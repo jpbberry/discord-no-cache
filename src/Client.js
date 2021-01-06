@@ -58,38 +58,6 @@ class Client extends EventHandler {
     this.shards.forEach(_ => { _.kill(); });
   }
 
-  // request(endpoint, method = "GET", body = null, headers = {}) {
-  //   return new Promise((res, rej) => {
-  //     if (!["GET", "POST", "PATCH", "DELETE", "PUT"].includes(method)) throw new TypeError("Method must be GET, POST, PATCH, DELETE or PUT");
-  //     const go = () => {
-  //       req(encodeURI(this.options.api + endpoint), {
-  //         method: method,
-  //         body: body ? JSON.stringify(body) : null,
-  //         headers: {
-  //           Authorization: `Bot ${this.token}`,
-  //           "Content-Type": "application/json",
-  //           ...headers
-  //         }
-  //       })
-  //         .then(x => {
-  //           if (x.status !== 204) return x.json();
-  //         })
-  //         .then(response => {
-  //           if (response && response.retry_after) return setTimeout(() => {
-  //             go();
-  //           }, response.retry_after);
-  //           res(response);
-  //         })
-  //         .catch(err => rej(err));
-  //     };
-  //     go();
-  //   });
-  // }
-
-  // async react(channelID, messageID, reaction) {
-  //   return await this.request(`/channels/${channelID}/messages/${messageID}/reactions/${reaction.match(/^[0-9]*$/) ? `e:${reaction}` : reaction}/@me`, 'PUT');
-  // }
-
   setStatus(data) {
     for (let shard of this.shards) {
       shard.ws.send(
