@@ -73,59 +73,6 @@ class Client extends EventHandler {
       );
     }
   }
-
-  messageMenu(channelID, filter = () => true, timeout = () => { }, time, amount = 1, onm = () => { }) {
-    return new Promise((resolve) => {
-      let res = [];
-      let through = 0;
-      let tm;
-      const collector = (message) => {
-        if (message.channel_id === channelID && filter(message)) {
-          through++;
-          onm(message);
-          if (res > 1) res.push(message);
-          else res = message;
-
-          if (through >= amount) {
-            if (tm) clearTimeout(tm);
-            this.off('MESSAGE_CREATE', collector);
-            resolve(res);
-          }
-        }
-      };
-      this.on('MESSAGE_CREATE', collector);
-      if (time) tm = setTimeout(() => {
-        this.off('MESSAGE_CREATE', collector);
-        resolve(null);
-        timeout();
-      }, time);
-    });
-  }
-
-  async reactMenu(channelID, messageID, reacts = {}, filter = () => true, timeout = () => { }, time) {
-    let stopped = false;
-    let tm;
-    const collector = (reaction) => {
-      if (reaction.channel_id !== channelID || reaction.message_id !== messageID || !filter(reaction)) return;
-      const fn = reacts[reaction.emoji.id || reaction.emoji.name];
-      if (!fn) return;
-      stopped = true;
-      if (tm) clearTimeout(tm);
-      fn();
-      this.off('MESSAGE_REACTION_ADD', collector);
-    };
-    this.on('MESSAGE_REACTION_ADD', collector);
-    if (time) tm = setTimeout(() => {
-      stopped = true;
-      timeout();
-      this.off('MESSAGE_REACTION_ADD', collector);
-    }, time);
-    const keys = Object.keys(reacts);
-    for (let i = 0; i < keys.length; i++) {
-      if (stopped) break;
-      console.log(await this.react(channelID, messageID, keys[i]));
-    }
-  }
 }
 
 module.exports = Client;
