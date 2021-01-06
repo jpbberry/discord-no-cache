@@ -63,10 +63,9 @@ class Shard {
     switch (data.op) {
       case 0:
         switch (data.t) {
-          case 'MESSAGE_CREATE':
-            this.client.emit('message', new Message(data.d, this), this);
-            break;
           case 'MESSAGE_UPDATE':
+          case 'MESSAGE_CREATE':
+            if (!data.d.content) return;
             this.client.emit('message', new Message(data.d, this), this);
             break;
           case 'GUILD_CREATE':

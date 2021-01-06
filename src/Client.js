@@ -1,16 +1,16 @@
-const Embed = require('./Embed.js')
+const Embed = require('./Embed.js');
 
 const RestManager = require('discord-rest');
 const req = require("node-fetch");
-const EventHandler = require('events')
+const EventHandler = require('events');
 
-function wait(a) { return new Promise(r => { setTimeout(() => r(), a) }) }
+function wait(a) { return new Promise(r => { setTimeout(() => r(), a); }); }
 
 const Shard = require("./Shard.js");
 
 class Client extends EventHandler {
-  constructor(token, options = {}, debug = () => {}) {
-    super()
+  constructor(token, options = {}, debug = () => { }) {
+    super();
     this.debug = debug;
     this.options = {
       shards: options.shards || 1,
@@ -29,7 +29,7 @@ class Client extends EventHandler {
 
     if (!this.options.dontStart) this.start();
 
-    this.Embed = Embed
+    this.Embed = Embed;
   }
 
   get api() {
@@ -37,7 +37,7 @@ class Client extends EventHandler {
   }
 
   get embed() {
-    return new this.Embed()
+    return new this.Embed();
   }
 
   async start() {
@@ -55,7 +55,7 @@ class Client extends EventHandler {
   }
 
   kill() {
-    this.shards.forEach(_ => { _.kill() })
+    this.shards.forEach(_ => { _.kill(); });
   }
 
   request(endpoint, method = "GET", body = null, headers = {}) {
@@ -71,23 +71,23 @@ class Client extends EventHandler {
             ...headers
           }
         })
-        .then(x => {
-          if (x.status !== 204) return x.json()
-        })
-        .then(response => {
-          if (response && response.retry_after) return setTimeout(() => {
-            go()
-          }, response.retry_after)
-          res(response) 
-        })
-        .catch(err => rej(err));
-      }
-      go()
-    })
+          .then(x => {
+            if (x.status !== 204) return x.json();
+          })
+          .then(response => {
+            if (response && response.retry_after) return setTimeout(() => {
+              go();
+            }, response.retry_after);
+            res(response);
+          })
+          .catch(err => rej(err));
+      };
+      go();
+    });
   }
-  
+
   async react(channelID, messageID, reaction) {
-    return await this.request(`/channels/${channelID}/messages/${messageID}/reactions/${reaction.match(/^[0-9]*$/) ? `e:${reaction}` : reaction}/@me`, 'PUT')
+    return await this.request(`/channels/${channelID}/messages/${messageID}/reactions/${reaction.match(/^[0-9]*$/) ? `e:${reaction}` : reaction}/@me`, 'PUT');
   }
 
   setStatus(data) {
@@ -102,60 +102,60 @@ class Client extends EventHandler {
             game: data.game || null
           }
         })
-      )
+      );
     }
   }
 
-  messageMenu(channelID, filter = () => true, timeout = () => {}, time, amount = 1, onm = () => {}) {
+  messageMenu(channelID, filter = () => true, timeout = () => { }, time, amount = 1, onm = () => { }) {
     return new Promise((resolve) => {
-      let res = []
-      let through = 0
-      let tm
+      let res = [];
+      let through = 0;
+      let tm;
       const collector = (message) => {
         if (message.channel_id === channelID && filter(message)) {
-          through++
-          onm(message)
-          if (res > 1) res.push(message)
-          else res = message
-          
+          through++;
+          onm(message);
+          if (res > 1) res.push(message);
+          else res = message;
+
           if (through >= amount) {
-            if (tm) clearTimeout(tm)
-            this.off('MESSAGE_CREATE', collector)
-            resolve(res)
+            if (tm) clearTimeout(tm);
+            this.off('MESSAGE_CREATE', collector);
+            resolve(res);
           }
         }
-      }
-      this.on('MESSAGE_CREATE', collector)
+      };
+      this.on('MESSAGE_CREATE', collector);
       if (time) tm = setTimeout(() => {
-        this.off('MESSAGE_CREATE', collector)
-        resolve(null)
-        timeout()
-      }, time)
-    })
+        this.off('MESSAGE_CREATE', collector);
+        resolve(null);
+        timeout();
+      }, time);
+    });
   }
-  
-  async reactMenu(channelID, messageID, reacts = {}, filter = () => true, timeout = () => {}, time) {
-    let stopped = false
-    let tm
+
+  async reactMenu(channelID, messageID, reacts = {}, filter = () => true, timeout = () => { }, time) {
+    let stopped = false;
+    let tm;
     const collector = (reaction) => {
-      if (reaction.channel_id !== channelID || reaction.message_id !== messageID || !filter(reaction)) return
-      const fn = reacts[reaction.emoji.id || reaction.emoji.name]
-      if (!fn) return
-      stopped = true
-      if (tm) clearTimeout(tm)
-      fn()
-      this.off('MESSAGE_REACTION_ADD', collector)
-    }
-    this.on('MESSAGE_REACTION_ADD', collector)
+      if (reaction.channel_id !== channelID || reaction.message_id !== messageID || !filter(reaction)) return;
+      const fn = reacts[reaction.emoji.id || reaction.emoji.name];
+      if (!fn) return;
+      stopped = true;
+      if (tm) clearTimeout(tm);
+      fn();
+      this.off('MESSAGE_REACTION_ADD', collector);
+    };
+    this.on('MESSAGE_REACTION_ADD', collector);
     if (time) tm = setTimeout(() => {
-      stopped = true
-      timeout()
-      this.off('MESSAGE_REACTION_ADD', collector)
-    }, time)
-    const keys = Object.keys(reacts)
+      stopped = true;
+      timeout();
+      this.off('MESSAGE_REACTION_ADD', collector);
+    }, time);
+    const keys = Object.keys(reacts);
     for (let i = 0; i < keys.length; i++) {
-      if (stopped) break
-      console.log(await this.react(channelID, messageID, keys[i]))
+      if (stopped) break;
+      console.log(await this.react(channelID, messageID, keys[i]));
     }
   }
 }

@@ -15,6 +15,6 @@ module.exports = class Channel {
       if (message instanceof Embed) message = { embed: message.render() };
       obj = { ...obj, ...message };
     } else obj["content"] = message;
-    return new (require('./Message'))(await this.#shard.client.api().channels[this.id].messages.post({ body: obj }), this.#shard)
+    return new (require('./Message'))(await this.#shard.client.api().channels[this.id].messages.post({ body: obj }), this.#shard);
   }
-}
+};
