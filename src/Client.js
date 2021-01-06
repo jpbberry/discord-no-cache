@@ -1,5 +1,6 @@
 const Embed = require('./Embed.js')
 
+const RestManager = require('discord-rest');
 const req = require("node-fetch");
 const EventHandler = require('events')
 
@@ -24,10 +25,15 @@ class Client extends EventHandler {
     };
     this.token = token;
     this.shards = [];
+    this.rest = new RestManager(token);
 
     if (!this.options.dontStart) this.start();
 
     this.Embed = Embed
+  }
+
+  get api() {
+    return this.rest.builder();
   }
 
   get embed() {
@@ -79,41 +85,9 @@ class Client extends EventHandler {
       go()
     })
   }
-
-  async send(channelID, contentOrOBJ = {}, obj = {}) {
-    if (typeof contentOrOBJ !== 'string') {
-      if (contentOrOBJ instanceof Embed) contentOrOBJ = { embed: contentOrOBJ.render() }
-      obj = {
-        ...obj,
-        ...contentOrOBJ
-      }
-    }
-    else {
-      obj["content"] = contentOrOBJ;
-    }
-    return await this.request(`/channels/${channelID}/messages`, "POST", obj);
-  }
-
-  async edit(channelID, messageID, contentOrOBJ, obj = {}) {
-    if (typeof contentOrOBJ !== 'string') {
-      if (contentOrOBJ instanceof Embed) contentOrOBJ = { embed: contentOrOBJ.render() }
-      obj = {
-        ...obj,
-        ...contentOrOBJ
-      }
-    }
-    else {
-      obj["content"] = contentOrOBJ;
-    }
-    return await this.request(`/channels/${channelID}/messages/${messageID}`, "PATCH", obj);
-  }
-
+  
   async react(channelID, messageID, reaction) {
     return await this.request(`/channels/${channelID}/messages/${messageID}/reactions/${reaction.match(/^[0-9]*$/) ? `e:${reaction}` : reaction}/@me`, 'PUT')
-  }
-
-  async deleteMessage(channelID, messageID) {
-    return await this.request(`/channels/${channelID}/messages/${messageID}`, "DELETE");
   }
 
   setStatus(data) {

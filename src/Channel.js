@@ -1,3 +1,4 @@
+const Embed = require("./Embed");
 const Message = require("./Message");
 
 module.exports = class Channel {
@@ -5,14 +6,15 @@ module.exports = class Channel {
   constructor(id, shard) {
     this.#shard = shard;
 
-    // IDs
     this.id = id;
   }
 
-  async send(message) {
-    const req = await this.#shard.client.send(this.id, message)
-    if(req.code) {
-      throw new Error('DiscordAPIError: ' + req.message);
-    } else return new (require('./Message'))(req, this.#shard);
+  async send(message = {}) {
+    let obj = {};
+    if (typeof message !== 'string') {
+      if (message instanceof Embed) message = { embed: message.render() };
+      obj = { ...obj, ...message };
+    } else obj["content"] = message;
+    return new (require('./Message'))(await this.#shard.client.api().channels[this.id].messages.post({ body: obj }), this.#shard)
   }
 }

@@ -74,7 +74,7 @@ class Shard {
             this.client.emit('guildCreate', data.d, this);
             break;
           case 'GUILD_UPDATE':
-            const oldGuild = this.client.cache.guilds[data.d.id]
+            const oldGuild = this.client.cache.guilds[data.d.id];
             this.client.cache.guilds[data.d.id] = data.d;
             this.client.emit('guildUpdate', data.d, oldGuild, this);
             break;
