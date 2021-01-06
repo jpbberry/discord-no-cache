@@ -119,10 +119,8 @@ class Shard {
   }
 
   ack(msg) {
-    console.log(msg);
     let cur = new Date().getTime() - this.waitingHeartbeat;
     this.client.debug(`Heartbeat on shard ${this.id} acknowledged after ${cur}ms`);
-    console.log(new Date().getTime() - this.waitingHeartbeat)
     this.ping = cur;
     this.waitingHeartbeat = false;
   }
