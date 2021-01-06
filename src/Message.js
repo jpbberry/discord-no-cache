@@ -1,4 +1,5 @@
 const Channel = require("./Channel");
+const Embed = require("./Embed");
 
 module.exports = class Message {
   #shard;
@@ -13,7 +14,13 @@ module.exports = class Message {
     this.channel = new Channel(obj.channel_id, shard);
 
     // People
-    this.author = obj.author;
+    this.author = {
+      id: obj.author.id,
+      username: obj.author.username,
+      flags: obj.author.public_flags,
+      discriminator: obj.author.discriminator,
+      avatarURL: `https://cdn.discordapp.com/avatars/${obj.author.id}/${obj.author.avatar}`
+    };
     this.member = obj.member;
 
     // Content
@@ -34,18 +41,22 @@ module.exports = class Message {
       if (message instanceof Embed) message = { embed: message.render() };
       obj = { ...obj, ...message };
     } else obj["content"] = message;
-    return new Message(await this.#shard.client.api().channels[this.channel.id].messages[this.id].patch({ body: { content: message } }), this.#shard);
+    return new Message(await this.#shard.client.api().channels[this.channel.id].messages[this.id].patch({ body: { content: obj } }), this.#shard);
   }
 
   async reply(message) {
     let obj = {};
-    if (typeof message !== 'string') {
-      if (message instanceof Embed) message = { embed: message.render() };
-      obj = { ...obj, ...message };
-    } else obj["content"] = message;
+    if (typeof message === 'string') {
+      obj['content'] = message;
+    } else {
+      if (message instanceof Embed) {
+        obj['embed'] = message.render();
+      } else obj = message;
+    };
     return new Message(await this.#shard.client.api().channels[this.channel.id].messages.post({
       body: {
-        content: message, message_reference: {
+        ...obj,
+        message_reference: {
           message_id: this.id,
           guild_id: this.guildID,
           channel_id: this.channel.id

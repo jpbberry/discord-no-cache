@@ -9,12 +9,19 @@ module.exports = class Channel {
     this.id = id;
   }
 
-  async send(message = {}) {
+  async send(message) {
     let obj = {};
-    if (typeof message !== 'string') {
-      if (message instanceof Embed) message = { embed: message.render() };
-      obj = { ...obj, ...message };
-    } else obj["content"] = message;
-    return new (require('./Message'))(await this.#shard.client.api().channels[this.id].messages.post({ body: obj }), this.#shard);
+    if (typeof message === 'string') {
+      obj['content'] = message;
+    } else {
+      if (message instanceof Embed) {
+        obj['embed'] = message.render();
+      } else obj = message;
+    };
+    return new Message(await this.#shard.client.api().channels[this.id].messages.post({
+      body: {
+        ...obj,
+      }
+    }), this.#shard);
   }
 };
