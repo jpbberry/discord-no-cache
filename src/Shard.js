@@ -1,14 +1,14 @@
 let browser = typeof window !== 'undefined';
-const WS = browser ? WebSocket : require("ws");
+const WS = browser ? WebSocket : require('ws');
 
 const Message = require('./Message');
 
 function wait(a) { return new Promise(r => { setTimeout(() => r(), a); }); }
 
 let wsAdapt = {
-  message: (ws, fn) => { return browser ? ws.onmessage = fn : ws.on("message", fn); },
-  open: (ws, fn) => { return browser ? ws.onopen = fn : ws.on("open", fn); },
-  close: (ws, fn) => { return browser ? ws.onclose = fn : ws.on("close", fn); }
+  message: (ws, fn) => { return browser ? ws.onmessage = fn : ws.on('message', fn); },
+  open: (ws, fn) => { return browser ? ws.onopen = fn : ws.on('open', fn); },
+  close: (ws, fn) => { return browser ? ws.onclose = fn : ws.on('close', fn); }
 };
 
 class Shard {
@@ -51,16 +51,16 @@ class Shard {
       })
     );
     this.waitingHeartbeat = new Date().getTime();
-    this.client.debug("Heartbeat");
+    this.client.debug(`Sending Heartbeat on shard ${this.id}`);
   }
 
   message(msg) {
     var data = JSON.parse(browser ? msg.data : msg);
     if (data.s) this.s = data.s;
 
-    this.client.emit("raw", data.d || data, this);
-
     if (this.client.options.ignoreEvents.includes(data.t)) return;
+    
+    this.client.emit('raw', data.d || data, this);
 
     switch (data.op) {
       case 0:
@@ -97,7 +97,7 @@ class Shard {
   }
 
   hello(msg) {
-    this.client.debug(`Hello on shard ${this.id}`);
+    this.client.debug(`Shard ${this.id} Starting`);
     this.ws.send(
       JSON.stringify({
         op: 2,
@@ -113,9 +113,9 @@ class Shard {
       })
     );
 
-    this.heartbeat();
     this.hbInterval = setInterval(this.heartbeat.bind(this), msg.d.heartbeat_interval);
-    this.client.debug("Heartbeat interval: " + msg.d.heartbeat_interval);
+    this.heartbeat();
+    this.client.debug(`Heartbeat interval: ${msg.d.heartbeat_interval}`);
   }
 
   ack(msg) {
@@ -126,7 +126,7 @@ class Shard {
   }
 
   open() {
-    this.client.debug(`${this.id} websocket started`);
+    this.client.debug(`Shard ${this.id} WebSocket started`);
   }
 
   close(msg) {
