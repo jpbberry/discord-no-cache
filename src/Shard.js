@@ -29,7 +29,7 @@ class Shard {
     let ws;
     this.ws = ws = new WS(this.client.options.websocket);
 
-    this.client.debug(`Spawned shard ${this.id}`);
+    this.client.debug(`[Shard ${this.id}] Spawned shard`);
 
     wsAdapt.message(ws, (msg) => {
       this.message(msg);
@@ -43,7 +43,7 @@ class Shard {
   }
 
   heartbeat() {
-    if (this.waitingHeartbeat) { this.client.debug(`Shard ${this.id} heartbeat took too long`); };
+    if (this.waitingHeartbeat) { this.client.debug(`[Shard ${this.id}] Heartbeat took too long`); };
     this.ws.send(
       JSON.stringify({
         op: 1,
@@ -51,7 +51,7 @@ class Shard {
       })
     );
     this.waitingHeartbeat = new Date().getTime();
-    this.client.debug(`Sending Heartbeat on shard ${this.id}`);
+    this.client.debug(`[Shard ${this.id}] Sending Heartbeat`);
   }
 
   message(msg) {
@@ -97,7 +97,7 @@ class Shard {
   }
 
   hello(msg) {
-    this.client.debug(`Shard ${this.id} Starting`);
+    this.client.debug(`[Shard ${this.id}] Starting`);
     this.ws.send(
       JSON.stringify({
         op: 2,
@@ -115,27 +115,28 @@ class Shard {
 
     this.hbInterval = setInterval(this.heartbeat.bind(this), msg.d.heartbeat_interval);
     this.heartbeat();
-    this.client.debug(`Heartbeat interval: ${msg.d.heartbeat_interval}`);
+    this.client.debug(`[Shard ${this.id}] Heartbeat interval: ${msg.d.heartbeat_interval}`);
   }
 
   ack(msg) {
     let cur = new Date().getTime() - this.waitingHeartbeat;
-    this.client.debug(`Heartbeat on shard ${this.id} acknowledged after ${cur}ms`);
+    this.client.debug(`[Shard ${this.id}] Heartbeat acknowledged after ${cur}ms`);
     this.ping = cur;
     this.waitingHeartbeat = false;
   }
 
   open() {
-    this.client.debug(`Shard ${this.id} WebSocket started`);
+    this.client.debug(`[Shard ${this.id}] WebSocket started`);
   }
 
   close(msg) {
-    console.debug(`Shard ${this.id} closed, Reason: ${msg.reason} Code: ${msg.code}`);
+    this.client.debug(`[Shard ${this.id}] Closed. Reason: ${msg.reason}. Code: ${msg.code}`);
     clearInterval(this.hbInterval);
     process.exit();
   }
 
   kill() {
+    this.client.debug(`[Shard ${this.id}] Killed.`)
     this.ws.close();
   }
 }
