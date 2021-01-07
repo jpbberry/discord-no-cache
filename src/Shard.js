@@ -152,7 +152,7 @@ class Shard {
   close(msg = { reason: undefined, code: undefined }) {
     this.client.debug(this.logMSG + ` Closed. Reason: ${msg.reason}. Code: ${msg.code}`);
     clearInterval(this.hbInterval);
-    if (!msg) return this.spawn();
+    if (!msg.reason && !msg.code) return this.spawn();
     if (this.id === 0) return process.exit();
   }
 
