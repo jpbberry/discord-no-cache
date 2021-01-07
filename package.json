@@ -19,7 +19,6 @@
   "dependencies": {
     "collections": "latest",
     "colors": "^1.4.0",
-    "command-framework": "github:million900o/command-framework",
     "discord-rest": "github:JPBBots/discord-rest",
     "node-fetch": "^2.6.1",
     "ws": "^7.4.2"
