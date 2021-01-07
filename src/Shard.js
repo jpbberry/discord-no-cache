@@ -53,17 +53,18 @@ class Shard {
     this.waitingHeartbeat = new Date().getTime();
     this.client.debug(`[Shard ${this.id}] Sending Heartbeat`);
   }
-
+  
   message(msg) {
     var data = JSON.parse(browser ? msg.data : msg);
     if (data.s) this.s = data.s;
-
+    
     if (this.client.options.ignoreEvents.includes(data.t)) return;
     
     this.client.emit('raw', data.d || data, this);
-
+    
     switch (data.op) {
       case 0:
+        this.client.debug(`[Shard ${this.id}] Recieved Event ${data.t}`);
         switch (data.t) {
           case 'MESSAGE_UPDATE':
           case 'MESSAGE_CREATE':
