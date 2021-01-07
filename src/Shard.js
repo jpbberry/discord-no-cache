@@ -18,6 +18,7 @@ class Shard {
     this.ws = null;
 
     this.ping = null;
+    this.logMSG = this.format(this.id, this.client.options.shards);
 
     this.hbInterval = null;
     this.s = null;
@@ -29,7 +30,7 @@ class Shard {
     let ws;
     this.ws = ws = new WS(this.client.options.websocket);
 
-    this.client.debug(`[Shard ${this.id}] Spawned shard`);
+    this.client.debug(this.logMSG + ` Spawned shard`);
 
     wsAdapt.message(ws, (msg) => {
       this.message(msg);
@@ -43,7 +44,7 @@ class Shard {
   }
 
   heartbeat() {
-    if (this.waitingHeartbeat) { this.client.debug(`[Shard ${this.id}] Heartbeat took too long`); };
+    if (this.waitingHeartbeat) { this.client.debug(this.logMSG + ` Heartbeat took too long`); };
     this.ws.send(
       JSON.stringify({
         op: 1,
@@ -51,20 +52,20 @@ class Shard {
       })
     );
     this.waitingHeartbeat = new Date().getTime();
-    this.client.debug(`[Shard ${this.id}] Sending Heartbeat`);
+    this.client.debug(this.logMSG + ` Sending Heartbeat`);
   }
-  
+
   message(msg) {
     var data = JSON.parse(browser ? msg.data : msg);
     if (data.s) this.s = data.s;
-    
+
     if (this.client.options.ignoreEvents.includes(data.t)) return;
-    
+
     this.client.emit('raw', data.d || data, this);
-    
+
     switch (data.op) {
       case 0:
-        this.client.debug(`[Shard ${this.id}] Recieved Event ${data.t}`);
+        this.client.debug(this.logMSG + ` Recieved Event ${data.t}`);
         switch (data.t) {
           case 'MESSAGE_UPDATE':
           case 'MESSAGE_CREATE':
@@ -98,7 +99,7 @@ class Shard {
   }
 
   hello(msg) {
-    this.client.debug(`[Shard ${this.id}] Starting`);
+    this.client.debug(this.logMSG + ` Starting`);
     this.ws.send(
       JSON.stringify({
         op: 2,
@@ -116,28 +117,47 @@ class Shard {
 
     this.hbInterval = setInterval(this.heartbeat.bind(this), msg.d.heartbeat_interval);
     this.heartbeat();
-    this.client.debug(`[Shard ${this.id}] Heartbeat interval: ${msg.d.heartbeat_interval}`);
+    this.client.debug(this.logMSG + ` Heartbeat interval: ${msg.d.heartbeat_interval}`);
+  }
+
+  format(num, shards) {
+    const str = `Shard ${num}`;
+    const len = ` Shard ${shards - 1} `.length
+    return `${this.separate(str, len)}|`.cyan.bold;
+  }
+
+  separate(str, to) {
+    let res = str;
+    let sw = 1;
+    for (let i = 0; i < 100; i++) {
+      if (sw === 1) res = res + ' ';
+      else res = ' ' + res;
+      if (res.length >= to) break;
+      sw = sw * -1;
+    }
+    return res;
   }
 
   ack(msg) {
     let cur = new Date().getTime() - this.waitingHeartbeat;
-    this.client.debug(`[Shard ${this.id}] Heartbeat acknowledged after ${cur}ms`);
+    this.client.debug(this.logMSG + ` Heartbeat acknowledged after ${cur}ms`);
     this.ping = cur;
     this.waitingHeartbeat = false;
   }
 
   open() {
-    this.client.debug(`[Shard ${this.id}] WebSocket started`);
+    this.client.debug(this.logMSG + ` WebSocket started`);
   }
 
-  close(msg) {
-    this.client.debug(`[Shard ${this.id}] Closed. Reason: ${msg.reason}. Code: ${msg.code}`);
+  close(msg = { reason: undefined, code: undefined }) {
+    this.client.debug(this.logMSG + ` Closed. Reason: ${msg.reason}. Code: ${msg.code}`);
     clearInterval(this.hbInterval);
-    process.exit();
+    if (this.id === 0) return process.exit();
+    if (msg) this.spawn();
   }
 
   kill() {
-    this.client.debug(`[Shard ${this.id}] Killed.`)
+    this.client.debug(this.logMSG + ` Killed.`);
     this.ws.close();
   }
 }

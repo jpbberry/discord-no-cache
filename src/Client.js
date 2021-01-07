@@ -2,6 +2,7 @@ const Embed = require('./Embed.js');
 
 const RestManager = require('discord-rest');
 const EventHandler = require('events');
+const colors = require('colors');
 
 function wait(a) { return new Promise(r => { setTimeout(() => r(), a); }); }
 
@@ -26,6 +27,9 @@ class Client extends EventHandler {
     this.shards = [];
     this.rest = new RestManager(token);
 
+    this.logMSG = this.format(this.options.shards);
+    // this.logMSG = '[ Client  ]'.magenta.bold;
+
     if (!this.options.dontStart) this.start();
 
     this.Embed = Embed;
@@ -46,19 +50,37 @@ class Client extends EventHandler {
     }
   }
 
+  format(shards) {
+    const str = 'Client';
+    const len = ` Shard ${shards - 1} `.length;
+    return `${this.separate(str, len)}|`.magenta.bold;
+  }
+
+  separate(str, to) {
+    let res = str;
+    let sw = 1;
+    for (let i = 0; i < 100; i++) {
+      if (sw === 1) res = res + ' ';
+      else res = ' ' + res;
+      if (res.length >= to) break;
+      sw = sw * -1;
+    }
+    return res;
+  }
+
   spawn(shard) {
     let s = new Shard(shard, this);
     this.shards.push(s);
-    this.debug(`[Client] Starting shard ${shard}`);
+    this.debug(this.logMSG + ` Starting shard ${shard}`);
     s.spawn();
   }
-  
+
   kill() {
     this.shards.forEach(_ => { _.kill(); });
   }
-  
+
   setStatus(data) {
-    this.debug(`[Client] Setting status`);
+    this.debug(this.logMSG + `Setting status`);
     for (let shard of this.shards) {
       shard.ws.send(
         JSON.stringify({
