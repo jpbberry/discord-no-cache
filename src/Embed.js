@@ -48,12 +48,12 @@ class Embed {
     };
   }
 
-  description(desc) {
+  setDescription(desc) {
     this.obj.description = desc;
     return this;
   }
 
-  title(title, url) {
+  setTitle(title, url) {
     this.obj.title = title;
     this.obj.url = url || null;
     return this;
@@ -64,14 +64,14 @@ class Embed {
     return this;
   }
 
-  color(color) {
+  setColor(color) {
     if (Colors[color]) color = Colors[color];
     if (color instanceof String) color = Number(color);
     this.obj.color = color;
     return this;
   }
 
-  field(name, value, inline) {
+  addField(name, value, inline) {
     this.obj.fields.push({
       name: name,
       value: value,
@@ -80,7 +80,7 @@ class Embed {
     return this;
   }
 
-  thumbnail(url, width, height) {
+  setThumbnail(url, width, height) {
     this.obj.thumbnail = {
       url: url,
       width: width || null,
@@ -89,7 +89,7 @@ class Embed {
     return this;
   }
 
-  footer(text, icon) {
+  setFooter(text, icon) {
     this.obj.footer = {
       text: text || null,
       icon_url: icon || null
@@ -97,7 +97,7 @@ class Embed {
     return this;
   }
 
-  image(url, height, width) {
+  setImage(url, height, width) {
     this.obj.image = {
       url: url,
       width: width || null,
@@ -106,7 +106,7 @@ class Embed {
     return this;
   }
 
-  author(name, icon, url) {
+  setAuthor(name, icon, url) {
     this.obj.author = {
       name: name,
       icon_url: icon,
