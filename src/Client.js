@@ -49,15 +49,16 @@ class Client extends EventHandler {
   spawn(shard) {
     let s = new Shard(shard, this);
     this.shards.push(s);
-    this.debug(`Starting shard ${shard}`);
+    this.debug(`[Client] Starting shard ${shard}`);
     s.spawn();
   }
-
+  
   kill() {
     this.shards.forEach(_ => { _.kill(); });
   }
-
+  
   setStatus(data) {
+    this.debug(`[Client] Setting status`);
     for (let shard of this.shards) {
       shard.ws.send(
         JSON.stringify({
