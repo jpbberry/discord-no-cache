@@ -3,6 +3,8 @@ const WS = browser ? WebSocket : require('ws');
 
 const Message = require('./Message');
 
+const separate = require('./utils/seperate.js');
+
 function wait(a) { return new Promise(r => { setTimeout(() => r(), a); }); }
 
 let wsAdapt = {
@@ -107,8 +109,8 @@ class Shard {
           shard: this.client.options.shards > 1 ? [this.id, this.client.options.shards] : undefined,
           token: this.client.token,
           properties: {
-            "$os": "linux",
-            "$browser": "jpbbgay",
+            "$os": require('os').platform(),
+            "$browser":  this.client.options.browser,
             "$device": "idkwebsockets"
           }
         }
@@ -123,19 +125,7 @@ class Shard {
   format(num, shards) {
     const str = `Shard ${num}`;
     const len = ` Shard ${shards - 1} `.length
-    return `${this.separate(str, len)}|`.cyan.bold;
-  }
-
-  separate(str, to) {
-    let res = str;
-    let sw = 1;
-    for (let i = 0; i < 100; i++) {
-      if (sw === 1) res = res + ' ';
-      else res = ' ' + res;
-      if (res.length >= to) break;
-      sw = sw * -1;
-    }
-    return res;
+    return `${separate(str, len)}|`.cyan.bold;
   }
 
   ack(msg) {

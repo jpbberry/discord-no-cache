@@ -4,6 +4,8 @@ const RestManager = require('discord-rest');
 const EventHandler = require('events');
 const colors = require('colors');
 
+const separate = require('./utils/seperate.js');
+
 function wait(a) { return new Promise(r => { setTimeout(() => r(), a); }); }
 
 const Shard = require("./Shard.js");
@@ -13,6 +15,7 @@ class Client extends EventHandler {
     super();
     this.debug = debug;
     this.options = {
+      browser: options.browser || "jpbbgay",
       shards: options.shards || 1,
       ignoreEvents: options.ignoreEvents || [],
       websocket: options.websocket || "wss://gateway.discord.gg/?v=6&encoding=json",
@@ -53,19 +56,7 @@ class Client extends EventHandler {
   format(shards) {
     const str = 'Client';
     const len = ` Shard ${shards - 1} `.length;
-    return `${this.separate(str, len)}|`.magenta.bold;
-  }
-
-  separate(str, to) {
-    let res = str;
-    let sw = 1;
-    for (let i = 0; i < 100; i++) {
-      if (sw === 1) res = res + ' ';
-      else res = ' ' + res;
-      if (res.length >= to) break;
-      sw = sw * -1;
-    }
-    return res;
+    return `${separate(str, len)}|`.magenta.bold;
   }
 
   spawn(shard) {
