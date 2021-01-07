@@ -5,8 +5,7 @@ const EventHandler = require('events');
 const colors = require('colors');
 
 const separate = require('./utils/seperate.js');
-
-function wait(a) { return new Promise(r => { setTimeout(() => r(), a); }); }
+const wait = require('./utils/wait.js')
 
 const Shard = require("./Shard.js");
 
@@ -31,7 +30,6 @@ class Client extends EventHandler {
     this.rest = new RestManager(token);
 
     this.logMSG = this.format(this.options.shards);
-    // this.logMSG = '[ Client  ]'.magenta.bold;
 
     if (!this.options.dontStart) this.start();
 

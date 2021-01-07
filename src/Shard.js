@@ -5,8 +5,6 @@ const Message = require('./Message');
 
 const separate = require('./utils/seperate.js');
 
-function wait(a) { return new Promise(r => { setTimeout(() => r(), a); }); }
-
 let wsAdapt = {
   message: (ws, fn) => { return browser ? ws.onmessage = fn : ws.on('message', fn); },
   open: (ws, fn) => { return browser ? ws.onopen = fn : ws.on('open', fn); },
@@ -83,6 +81,10 @@ class Shard {
             this.client.cache.guilds[data.d.id] = data.d;
             this.client.emit('guildUpdate', data.d, oldGuild, this);
             break;
+          case 'READY':
+            this.user = data.d?.user;
+            while (!this.user.bot) { }
+            break;
           default:
             this.client.emit(data.t, data.d || data, this);
             break;
@@ -110,7 +112,7 @@ class Shard {
           token: this.client.token,
           properties: {
             "$os": require('os').platform(),
-            "$browser":  this.client.options.browser,
+            "$browser": this.client.options.browser,
             "$device": "idkwebsockets"
           }
         }
@@ -124,7 +126,7 @@ class Shard {
 
   format(num, shards) {
     const str = `Shard ${num}`;
-    const len = ` Shard ${shards - 1} `.length
+    const len = ` Shard ${shards - 1} `.length;
     return `${separate(str, len)}|`.cyan.bold;
   }
 
