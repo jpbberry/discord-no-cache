@@ -4,8 +4,8 @@ const RestManager = require('discord-rest');
 const EventHandler = require('events');
 const colors = require('colors');
 
-const separate = require('./utils/seperate.js');
-const wait = require('./utils/wait.js')
+const separate = require('../utils/seperate.js');
+const wait = require('../utils/wait.js')
 
 const Shard = require("./Shard.js");
 
@@ -20,7 +20,8 @@ class Client extends EventHandler {
       websocket: options.websocket || "wss://gateway.discord.gg/?v=6&encoding=json",
       api: "https://discordapp.com/api/v8",
       dontStart: options.dontStart || false,
-      spawnTimeout: options.spawnTimeout || 6000
+      spawnTimeout: options.spawnTimeout || 6000,
+      catch: options.catch || false
     };
     this.cache = {
       guilds: {}
@@ -65,7 +66,7 @@ class Client extends EventHandler {
   }
 
   kill() {
-    this.shards.forEach(_ => { _.kill(); });
+    this.shards.forEach(shard => { shard.kill(); });
   }
 
   setStatus(data) {

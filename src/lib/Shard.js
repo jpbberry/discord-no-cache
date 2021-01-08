@@ -3,7 +3,7 @@ const WS = browser ? WebSocket : require('ws');
 
 const Message = require('./Message');
 
-const separate = require('./utils/seperate.js');
+const separate = require('../utils/seperate.js');
 
 let wsAdapt = {
   message: (ws, fn) => { return browser ? ws.onmessage = fn : ws.on('message', fn); },
