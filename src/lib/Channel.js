@@ -17,31 +17,14 @@ module.exports = class Channel {
     } else if (message instanceof Embed) {
       obj['embed'] = message.render();
     } else if (message instanceof FormData) {
-      let req;
-      try {
-        req = await fetch(this.#shard.client.options.api + `/channels/${this.id}/messages`, {
-          method: 'POST',
-          headers: {
-            ...message.getHeaders(),
-            Authorization: `Bot ${this.#shard.client.token}`,
-          },
-          body: message
-        })
-        req = await req.json();
-      } catch (err) {
-        throw err;
-      }
-      
-      // The code under this comment is supposed to work but doesn't.
-      // Because of this, we need to use the code above.
-      // :KEKW: @berry
-
-      // const req = await this.#shard.client.api().channels[this.id].messages.post({
-      //   method: 'POST',
-      //   body: message,
-      //   headers: message.getHeaders(),
-      //   parser: (_) => (_)
-      // });
+      const req = await this.#shard.client.api().channels[this.id].messages.post({
+        method: 'POST',
+        body: message,
+        headers: {
+          'Content-Type': message.getHeaders()['content-type']
+        },
+        parser: (_) => (_)
+      });
 
       if (req.code !== undefined) throw new Error(req.message)
       return new (require('./Message'))(req, this.#shard);
