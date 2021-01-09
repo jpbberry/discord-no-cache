@@ -40,7 +40,9 @@ module.exports = class Channel {
   }
 
   async fetch() {
-    return await this.#shard.client.api().channels[this.id].get();
+    const req = await this.#shard.client.api().channels[this.id].get();
+    if (req.code !== undefined) throw new Error(req.message);
+    return req;
   }
 
   async delete() {
