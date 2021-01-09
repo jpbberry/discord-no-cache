@@ -72,13 +72,22 @@ class Shard {
             if (!data.d.content) return;
             this.client.emit('message', new Message(data.d, this), this);
             break;
+          case 'GUILD_DELETE':
+            this.client.guildCount--
+            this.client.emit('guildDelete', data.d, this);
+            break;
           case 'GUILD_CREATE':
-            this.client.cache.guilds[data.d.id] = data.d;
+            this.client.guildCount++
+            // Commented to remove guild caching
+            // delete data.d.channels;
+            // this.client.cache.guilds[data.d.id] = data.d;
             this.client.emit('guildCreate', data.d, this);
             break;
           case 'GUILD_UPDATE':
-            const oldGuild = this.client.cache.guilds[data.d.id];
-            this.client.cache.guilds[data.d.id] = data.d;
+            // Commented to remove guild caching
+            // const oldGuild = this.client.cache.guilds[data.d.id];
+            // delete data.d.channels;
+            // this.client.cache.guilds[data.d.id] = data.d;
             this.client.emit('guildUpdate', data.d, oldGuild, this);
             break;
           case 'READY':

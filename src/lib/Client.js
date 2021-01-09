@@ -26,6 +26,7 @@ class Client extends EventHandler {
     this.cache = {
       guilds: {}
     };
+    this.guildCount = 0;
     this.token = token;
     this.shards = [];
     this.rest = new RestManager(token);
