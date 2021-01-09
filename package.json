@@ -20,6 +20,7 @@
     "collections": "latest",
     "colors": "^1.4.0",
     "discord-rest": "github:JPBBots/discord-rest",
+    "form-data": "^3.0.0",
     "node-fetch": "^2.6.1",
     "ws": "^7.4.2"
   }

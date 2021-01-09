@@ -66,6 +66,7 @@ class Client extends EventHandler {
   }
 
   kill() {
+    this.debug(this.logMSG + ' Killing all shards')
     this.shards.forEach(shard => { shard.kill(); });
   }
 
