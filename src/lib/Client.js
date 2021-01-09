@@ -46,6 +46,11 @@ class Client extends EventHandler {
     return new this.Embed();
   }
 
+  async fetchUser(ID) {
+    const req = await this.api().users[ID].get();
+    return req.code ? null : req;
+  }
+
   async start() {
     for (var shard = 0; shard < this.options.shards; shard++) {
       this.spawn(shard);
