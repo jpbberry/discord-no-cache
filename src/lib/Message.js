@@ -49,12 +49,23 @@ module.exports = class Message {
     let obj = {};
     if (typeof message === 'string') {
       obj['content'] = message;
-    } else {
-      if (message instanceof Embed) {
-        obj['embed'] = message.render();
-      } else obj = message;
-    };
-    const req = await this.shard.client.api().channels[this.channel.id].messages.post({
+    } else if (message instanceof Embed) {
+      obj['embed'] = message.render();
+    } else if (message instanceof FormData) {
+      const req = await this.#shard.client.api().channels[this.id].messages.post({
+        method: 'POST',
+        body: message,
+        headers: {
+          'Content-Type': message.getHeaders()['content-type']
+        },
+        parser: (_) => (_)
+      });
+
+      if (req.code !== undefined) throw new Error(req.message)
+      return new (require('./Message'))(req, this.#shard);
+    } else obj = message;
+
+    const req = await this.#shard.client.api().channels[this.id].messages.post({
       body: {
         ...obj,
         message_reference: {
@@ -62,10 +73,10 @@ module.exports = class Message {
           guild_id: this.guildID,
           channel_id: this.channel.id
         }
-      }
-    })
-    if (req.code) throw new Error(req.message);
-    return new Message(req, this.shard);
+      },
+    });
+    if (req.code !== undefined) throw new Error(req.message)
+    return new (require('./Message'))(req, this.#shard);
   }
 
   async delete() {
