@@ -59,7 +59,7 @@ module.exports = class Message {
           channel_id: this.channel.id
         }
       }));
-      const req = await this.#shard.client.api().channels[this.id].messages.post({
+      const req = await this.shard.client.api().channels[this.id].messages.post({
         method: 'POST',
         body: message,
         headers: {
@@ -69,10 +69,10 @@ module.exports = class Message {
       });
 
       if (req.code !== undefined) throw new Error(req.message);
-      return new (require('./Message'))(req, this.#shard);
+      return new Message(req, this.shard);
     } else obj = message;
-
-    const req = await this.#shard.client.api().channels[this.id].messages.post({
+    
+    const req = await this.shard.client.api().channels[this.id].messages.post({
       body: {
         ...obj,
         message_reference: {
@@ -83,7 +83,7 @@ module.exports = class Message {
       },
     });
     if (req.code !== undefined) throw new Error(req.message);
-    return new (require('./Message'))(req, this.#shard);
+    return new Message(req, this.#shard);
   }
 
   async delete() {
