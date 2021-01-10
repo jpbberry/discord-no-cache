@@ -88,7 +88,7 @@ class Shard {
             // const oldGuild = this.client.cache.guilds[data.d.id];
             // delete data.d.channels;
             // this.client.cache.guilds[data.d.id] = data.d;
-            this.client.emit('guildUpdate', data.d, oldGuild, this);
+            this.client.emit('guildUpdate', data.d, this);
             break;
           case 'READY':
             this.user = data.d?.user;
