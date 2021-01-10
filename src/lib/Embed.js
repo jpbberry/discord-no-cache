@@ -115,6 +115,12 @@ class Embed {
     return this;
   }
 
+  setTimestamp(timestamp = Date.now()) {
+    if (timestamp instanceof Date) timestamp = timestamp.getTime();
+    this.obj.timestamp = timestamp;
+    return this;
+  }
+
   render() {
     return this.obj;
   }
