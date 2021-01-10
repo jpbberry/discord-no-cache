@@ -1,3 +1,4 @@
+const FormData = require('form-data');
 const Embed = require("./Embed");
 
 module.exports = class Message {
