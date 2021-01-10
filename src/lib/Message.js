@@ -60,7 +60,7 @@ module.exports = class Message {
           channel_id: this.channel.id
         }
       }));
-      const req = await this.shard.client.api().channels[this.id].messages.post({
+      const req = await this.shard.client.api().channels[this.channel.id].messages.post({
         method: 'POST',
         body: message,
         headers: {
@@ -73,7 +73,7 @@ module.exports = class Message {
       return new Message(req, this.shard);
     } else obj = message;
 
-    const req = await this.shard.client.api().channels[this.id].messages.post({
+    const req = await this.shard.client.api().channels[this.channel.id].messages.post({
       body: {
         ...obj,
         message_reference: {
