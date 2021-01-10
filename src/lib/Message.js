@@ -40,8 +40,8 @@ module.exports = class Message {
       if (message instanceof Embed) message = { embed: message.render() };
       obj = { ...obj, ...message };
     } else obj["content"] = message;
-    const req = await this.shard.client.api().channels[this.channel.id].messages[this.id].patch({ body: { content: obj } })
-    if (req.code) throw new Error(req.message)
+    const req = await this.shard.client.api().channels[this.channel.id].messages[this.id].patch({ body: { content: obj } });
+    if (req.code) throw new Error(req.message);
     return new Message(req, this.shard);
   }
 
@@ -52,6 +52,13 @@ module.exports = class Message {
     } else if (message instanceof Embed) {
       obj['embed'] = message.render();
     } else if (message instanceof FormData) {
+      message.append('json_payload', JSON.stringify({
+        message_reference: {
+          message_id: this.id,
+          guild_id: this.guildID,
+          channel_id: this.channel.id
+        }
+      }));
       const req = await this.#shard.client.api().channels[this.id].messages.post({
         method: 'POST',
         body: message,
@@ -61,7 +68,7 @@ module.exports = class Message {
         parser: (_) => (_)
       });
 
-      if (req.code !== undefined) throw new Error(req.message)
+      if (req.code !== undefined) throw new Error(req.message);
       return new (require('./Message'))(req, this.#shard);
     } else obj = message;
 
@@ -75,7 +82,7 @@ module.exports = class Message {
         }
       },
     });
-    if (req.code !== undefined) throw new Error(req.message)
+    if (req.code !== undefined) throw new Error(req.message);
     return new (require('./Message'))(req, this.#shard);
   }
 
@@ -87,7 +94,7 @@ module.exports = class Message {
 
   async react(reaction) {
     reaction = reaction.match(/^[0-9]*$/) ? `e:${reaction}` : encodeURIComponent(reaction);
-    const req = await this.shard.client.api().channels[this.channel.id].messages[this.id].reactions[reaction]['@me'].put()
+    const req = await this.shard.client.api().channels[this.channel.id].messages[this.id].reactions[reaction]['@me'].put();
     if (req.code) throw new Error(req.message);
     return req;
   }
@@ -95,7 +102,7 @@ module.exports = class Message {
   async getReactions(reaction) {
     reaction = reaction.match(/^[0-9]*$/) ? `e:${reaction}` : encodeURIComponent(reaction);
     const req = await this.shard.client.api().channels[this.channel.id].messages[this.id].reactions[reaction].get();
-    if(req.code) throw new Error(req.message);
+    if (req.code) throw new Error(req.message);
     return req;
   }
 
