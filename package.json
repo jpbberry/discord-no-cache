@@ -2,7 +2,7 @@
   "name": "discord-no-cache",
   "version": "1.0.4",
   "description": "Package for internal use of simplistic discord bots",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +17,11 @@
   },
   "homepage": "https://github.com/jpbberry/discord-no-cache#readme",
   "dependencies": {
-    "collections": "latest"
+    "collections": "latest",
+    "colors": "^1.4.0",
+    "discord-rest": "github:JPBBots/discord-rest",
+    "form-data": "^3.0.0",
+    "node-fetch": "^2.6.1",
+    "ws": "^7.4.2"
   }
 }
